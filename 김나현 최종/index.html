@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>마음쉼표 | 공부 스트레스 체크</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f6fc; color: #25324a; font-family: system-ui, sans-serif; line-height: 1.7; }
+    main { max-width: 680px; margin: 40px auto; padding: 24px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .brand { font-size: 22px; font-weight: 800; color: #455dc2; }
+    a { color: #394faa; }
+    .card { background: white; border: 1px solid #dce3ef; border-radius: 24px; padding: 32px; }
+    h1 { font-size: 30px; line-height: 1.4; margin: 12px 0; }
+    h2 { font-size: 23px; line-height: 1.6; }
+    p { margin: 14px 0; }
+    .muted { color: #59657b; font-size: 15px; }
+    .tag { color: #455dc2; font-weight: 700; }
+    button, .button { display: inline-block; border: 0; border-radius: 12px; padding: 14px 22px; background: #455dc2; color: white; font: inherit; font-weight: 650; cursor: pointer; text-decoration: none; text-align: center; }
+    button:hover, .button:hover { filter: brightness(.92); }
+    button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px solid #d68118; outline-offset: 4px; }
+    .secondary { background: #edf0f8; color: #354366; }
+    .wide { width: 100%; margin-top: 16px; }
+    .choices { display: grid; gap: 10px; margin: 24px 0; }
+    .choice { background: white; color: #354366; border: 1px solid #bac6de; text-align: left; }
+    .choice[aria-pressed="true"] { background: #eef0ff; border: 2px solid #455dc2; color: #3047a4; padding: 13px 21px; }
+    .actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+    progress { width: 100%; height: 10px; accent-color: #455dc2; }
+    label { display: block; font-weight: 600; margin-top: 20px; }
+    textarea { width: 100%; min-height: 90px; margin-top: 8px; border: 1px solid #bac6de; border-radius: 10px; padding: 12px; font: inherit; resize: vertical; }
+    .note { padding: 18px; border-radius: 14px; background: #f1f4fc; margin: 20px 0; }
+    .help { background: #fff3ee; border: 1px solid #efc1b0; }
+    .score { font-size: 42px; font-weight: 800; color: #455dc2; margin: 10px 0; }
+    .error { color: #a12f30; min-height: 27px; }
+    .record { white-space: pre-wrap; overflow-wrap: anywhere; }
+    [hidden] { display: none !important; }
+    footer { text-align: center; margin-top: 24px; color: #59657b; font-size: 14px; }
+    @media (max-width: 520px) { main { margin: 12px auto; padding: 16px; } .card { padding: 24px 20px; } h1 { font-size: 27px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><span class="brand">마음쉼표 ,</span><a href="https://www.1388.go.kr/" target="_blank" rel="noopener">도움이 필요할 때</a></header>
+  <div class="card">
+    <section id="intro">
+      <span class="tag">청소년 공부 스트레스 체크</span>
+      <h1>열심히 달려온 나에게,<br>잠깐의 쉼표.</h1>
+      <p>공부 때문에 지친 마음을 천천히 살펴봐요.<br>정답은 없어요. 지금의 나와 가까운 답을 골라주세요.</p>
+      <div class="note">20개 질문 · 하루 돌아보기 · 나를 위한 조언</div>
+      <p class="muted">학교 과제용으로 만든 마음 점검 도구예요. 문항과 점수 기준은 의학적으로 검증된 척도가 아니며, 결과는 전문적인 진단을 대신하지 않아요.</p>
+      <p class="muted">답변과 기록은 서버에 전송하거나 저장하지 않아요. 새로고침하거나 창을 닫으면 사라져요.</p>
+      <button id="start" class="wide">마음 체크 시작하기</button>
+    </section>
+
+    <section id="quiz" hidden>
+      <p class="tag" id="count"></p>
+      <progress id="progress" max="20" value="0" aria-label="완료한 질문 수"></progress>
+      <p class="muted">최근의 내 모습을 떠올려 답해주세요.</p>
+      <h2 id="question" tabindex="-1"></h2>
+      <div id="choices" class="choices" role="group" aria-labelledby="question"></div>
+      <p id="error" class="error" role="alert"></p>
+      <div class="actions"><button id="prev" class="secondary">이전 질문</button><button id="next">다음 질문</button></div>
+    </section>
+
+    <section id="reflection" hidden>
+      <span class="tag">하루 돌아보기</span>
+      <h1 tabindex="-1">작은 순간도 괜찮아요.</h1>
+      <p>오늘의 나에게 따뜻한 말 한마디를 남겨볼까요?<br>쓰고 싶은 질문에만 답해도 괜찮아요.</p>
+      <label for="proud">오늘 가장 자랑스러웠던 일은?</label><textarea id="proud" maxlength="1000" placeholder="아주 작은 일도 좋아요."></textarea>
+      <label for="thanks">오늘 고마웠던 사람이나 순간은?</label><textarea id="thanks" maxlength="1000" placeholder="떠오르는 순간을 적어보세요."></textarea>
+      <label for="tomorrow">내일의 나에게 해주고 싶은 말은?</label><textarea id="tomorrow" maxlength="1000" placeholder="나에게 응원을 보내주세요."></textarea>
+      <div class="actions"><button id="back" class="secondary">질문으로 돌아가기</button><button id="finish">결과 보기</button></div>
+    </section>
+
+    <section id="result" hidden>
+      <span class="tag">오늘의 마음 체크 결과</span>
+      <h1 id="level" tabindex="-1"></h1>
+      <p id="score" class="score"></p>
+      <p class="muted">20~100점 · 점수가 높을수록 스트레스 응답이 적어요.</p>
+      <p id="reason"></p>
+      <div class="note"><strong>나를 위한 작은 실천</strong><p id="advice"></p></div>
+      <div id="help" class="note help" hidden>
+        <strong>혼자 감당하지 않아도 괜찮아요.</strong>
+        <p>믿을 수 있는 어른이나 학교 위클래스·상담 선생님에게 지금의 마음을 알려주세요. 마음의 어려움이 계속되면 보호자 또는 상담 선생님과 상의해 병원에서 전문적인 도움을 받아보세요.</p>
+        <a class="button wide" href="tel:1388">청소년상담 1388 전화하기</a>
+        <a class="button secondary wide" href="https://www.1388.go.kr/cco/YTOSP_SC_CCI_01" target="_blank" rel="noopener">1388 온라인 상담 안내</a>
+        <p class="muted">지금 스스로를 다치게 할 것 같다면 혼자 있지 말고, 곁에 있는 어른에게 바로 도움을 요청하세요.</p>
+      </div>
+      <div id="records" hidden><h2>오늘 내가 남긴 마음</h2><div id="record-list"></div></div>
+      <p class="muted">이 결과는 기획서의 임의 기준에 따른 참고용 안내이며, 전문 진단을 대체하지 않아요. 점수와 관계없이 힘들 때는 도움을 요청해도 괜찮아요.</p>
+      <button id="restart" class="secondary wide">처음부터 다시 하기</button>
+    </section>
+  </div>
+  <footer>나의 속도로, 나를 돌보는 시간. · 제작 김나현</footer>
+</main>
+<script>
+  // 라이브러리 없이 질문, 점수, 화면 전환만 처리합니다.
+  const questions = [
+    '공부해야 할 양이 너무 많아 부담스러웠다.',
+    '시험, 성적, 숙제에 대한 걱정이 쉽게 사라지지 않았다.',
+    '힘든 마음을 나눌 사람이 없어 외로웠다.',
+    '공부를 잘할 수 있다는 자신감이 부족했다.',
+    '공부 때문에 작은 일에도 짜증이 났다.',
+    '평소 좋아하던 일에도 흥미가 줄었다.',
+    '공부 때문에 몸과 마음이 피곤했다.',
+    '공부에 집중하기 어렵거나 해야 할 일을 미뤘다.',
+    '공부 걱정 때문에 잠들기 어렵거나 자주 깼다.',
+    '피곤해서 아침에 일어나기 어려웠다.',
+    '다른 사람과 성적을 비교하며 마음이 불편했다.',
+    '공부 스트레스를 받을 때 머리나 배가 아팠다.',
+    '열심히 해도 달라질 것이 없다는 무력감이 들었다.',
+    '부모님이나 선생님의 기대가 부담스러웠다.',
+    '쉬는 시간에도 공부 생각 때문에 편히 쉬지 못했다.',
+    '이유 없이 눈물이 나거나 우울한 기분이 들었다.',
+    '성적이 좋지 않으면 나 자신을 심하게 탓했다.',
+    '공부에 지쳐 친구들과 지낼 마음의 여유가 없었다.',
+    '성적 때문에 나의 미래가 불안하게 느껴졌다.',
+    '모든 걸 그만두고 싶거나 사라지고 싶다는 생각이 들었다.'
+  ];
+  const labels = ['매우 아니다', '조금 아니다', '보통이다', '조금 그렇다', '매우 그렇다'];
+  const names = ['건강', '괜찮음', '피로·약간 지침', '주의', '많이 지침 · 도움이 필요해요'];
+  const tips = [
+    '지금까지 잘해왔어요. 나에게 맞는 휴식과 생활 리듬을 이어가며 작은 노력도 칭찬해주세요.',
+    '공부 사이에 잠깐 일어나 가볍게 스트레칭해보세요. 오늘 할 일을 작게 나누고 쉬는 시간도 함께 정해보세요.',
+    '잠시 공부에서 벗어나 충분히 쉬어보세요. 좋아하는 음악이나 산책처럼 부담 없는 취미를 즐겨보는 것도 좋아요.',
+    '지금은 휴식을 챙겨볼 때예요. 공부 부담을 혼자 떠안지 말고, 믿을 수 있는 어른이나 상담 선생님에게 고민을 나눠보세요.',
+    '많이 힘든 상태일 수 있어요. 지금의 마음을 혼자 견디지 말고 믿을 수 있는 어른이나 전문 상담자에게 알려주세요.'
+  ];
+  const reflectionIds = ['proud', 'thanks', 'tomorrow'];
+  const reflectionTitles = ['오늘 가장 자랑스러웠던 일', '고마웠던 사람이나 순간', '내일의 나에게 해주고 싶은 말'];
+  const $ = id => document.getElementById(id);
+  let current = 0;
+  let answers = Array(20).fill(null);
+
+  function show(id) {
+    ['intro', 'quiz', 'reflection', 'result'].forEach(name => $(name).hidden = name !== id);
+    const heading = $(id).querySelector('h1, h2');
+    if (heading) heading.focus();
+    window.scrollTo(0, 0);
+  }
+
+  function renderQuestion() {
+    $('count').textContent = `질문 ${current + 1} / 20`;
+    $('progress').value = answers.filter(value => value !== null).length;
+    $('question').textContent = questions[current];
+    $('choices').replaceChildren();
+    labels.forEach((label, index) => {
+      const button = document.createElement('button');
+      button.className = 'choice';
+      button.textContent = label;
+      button.setAttribute('aria-pressed', answers[current] === 5 - index);
+      button.onclick = () => {
+        answers[current] = 5 - index; // 매우 아니다=5점, 매우 그렇다=1점
+        $('error').textContent = '';
+        [...$('choices').children].forEach((item, i) => item.setAttribute('aria-pressed', i === index));
+        $('progress').value = answers.filter(value => value !== null).length;
+        // 마지막 문항의 위험 신호는 기록 작성보다 먼저 도움을 안내합니다.
+        if (current === 19 && answers[19] <= 2) showResult();
+      };
+      $('choices').append(button);
+    });
+    $('prev').hidden = current === 0;
+    $('next').textContent = current === 19 ? '하루 돌아보기' : '다음 질문';
+    $('error').textContent = '';
+    show('quiz');
+  }
+
+  // 기획서의 단계 경계: 84 / 68 / 52 / 36점
+  function getLevel(score, lastAnswer) {
+    if (lastAnswer <= 2) return 5;
+    return score >= 84 ? 1 : score >= 68 ? 2 : score >= 52 ? 3 : score >= 36 ? 4 : 5;
+  }
+
+  function showResult() {
+    const missing = answers.indexOf(null);
+    if (missing !== -1) {
+      current = missing;
+      renderQuestion();
+      $('error').textContent = '아직 답하지 않은 질문이 있어요. 모든 질문에 답해주세요.';
+      return;
+    }
+    const total = answers.reduce((sum, value) => sum + value, 0);
+    const level = getLevel(total, answers[19]);
+    $('level').textContent = `${level}단계 · ${names[level - 1]}`;
+    $('score').textContent = `${total}점`;
+    $('reason').textContent = answers[19] <= 2
+      ? '20번 답변에서 도움이 필요한 신호가 있어, 총점과 관계없이 5단계 도움 안내를 먼저 보여드려요.'
+      : '내 상태를 알아보려 시간을 낸 나에게 따뜻한 마음을 보내주세요.';
+    $('advice').textContent = tips[level - 1];
+    $('help').hidden = level !== 5;
+    $('record-list').replaceChildren();
+    reflectionIds.forEach((id, index) => {
+      const value = $(id).value.trim();
+      if (!value) return;
+      const title = document.createElement('h3');
+      const content = document.createElement('p');
+      title.textContent = reflectionTitles[index];
+      content.className = 'record';
+      content.textContent = value; // 입력한 글을 HTML이 아닌 텍스트로 표시합니다.
+      $('record-list').append(title, content);
+    });
+    $('records').hidden = !$('record-list').children.length;
+    show('result');
+  }
+
+  $('start').onclick = renderQuestion;
+  $('prev').onclick = () => { if (current > 0) { current--; renderQuestion(); } };
+  $('next').onclick = () => {
+    if (answers[current] === null) {
+      $('error').textContent = '아직 답하지 않은 질문이 있어요. 답변을 하나 골라주세요.';
+      return;
+    }
+    if (current < 19) { current++; renderQuestion(); }
+    else if (answers[19] <= 2) showResult();
+    else show('reflection');
+  };
+  $('back').onclick = renderQuestion;
+  $('finish').onclick = showResult;
+  $('restart').onclick = () => {
+    answers = Array(20).fill(null);
+    current = 0;
+    reflectionIds.forEach(id => $(id).value = '');
+    $('record-list').replaceChildren();
+    show('intro');
+  };
+</script>
+</body>
+</html>
